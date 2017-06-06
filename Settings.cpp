@@ -1,8 +1,8 @@
 #include "Settings.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
-#include "Color.h"
 using namespace std;
 
 Settings::Settings()
@@ -15,8 +15,7 @@ Settings::Settings()
     }
     else
     {
-        cerr << "Error: Failed to open settings.conf" << endl;
-        cerr << "Using default port (41260)" << endl;
+        cerr << "Error: Failed to open settings.conf. Using default port." << endl;
     }
 }
 
@@ -33,24 +32,50 @@ bool Settings::openFile(ifstream &settingsStream)
 
 void Settings::parseFile(ifstream &settingsStream)
 {
-    cout << "Printing out settings.conf for now:\n\n";
     string line;
+    string command, value;
     int lineNum = 1;
-    cout << ANSI_CYAN;
+
+    //Read line by line from settings.conf
     while (getline(settingsStream, line))
     {
-        //parseLine(line);
-        cout << lineNum << ": " << line << endl;
-        lineNum += 1;
+        istringstream iss(line);
+        iss >> command;
+
+        //Send to parse if not a comment
+        if (command.length() >= 1)
+        {
+            if (command.at(0) != '#')
+            {
+                iss >> value;
+                parseCommand(command, value);
+            }
+        }
     }
-    cout << ANSI_RESET;
+}
+
+void Settings::parseCommand(string command, string value)
+{
+    command = toUpper(command);
+
+    if (command == "PORT")
+    {
+        try
+        {
+            port = stoi(value);
+        }
+        catch (exception &e)
+        {
+            cerr << "Error setting port. Using default port. Please check settings.conf." << endl;
+        }
+    }
 }
 
 string Settings::toUpper(string fixme)
 {
     for (int i = 0; i < fixme.size(); i++)
     {
-        if (fixme[i] >= 97 && fixme[i] < 123)
+        if (fixme[i] >= 97 && fixme[i] <= 122)
             fixme[i] -= 32;
     }
     return fixme;
