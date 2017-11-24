@@ -26,7 +26,7 @@ int Settings::getPortNumber()
 
 bool Settings::openFile(ifstream &settingsStream)
 {
-    settingsStream.open(settingsPath);
+    settingsStream.open(SETTINGSPATH);
     return settingsStream.is_open();
 }
 

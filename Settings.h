@@ -7,9 +7,9 @@ class Settings
 {
 private:
   const int DEFAULTPORT = 41260;
+  const string SETTINGSPATH = "settings.conf";
+  
   int port = DEFAULTPORT;
-
-  string settingsPath = "settings.conf";
 
   bool openFile(ifstream &);
   void parseFile(ifstream &);
