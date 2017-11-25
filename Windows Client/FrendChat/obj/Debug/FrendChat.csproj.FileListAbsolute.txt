@@ -1,0 +1,14 @@
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\bin\Debug\FrendChat.exe.config
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\bin\Debug\FrendChat.exe
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\bin\Debug\FrendChat.pdb
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\obj\Debug\FrendChat.csprojResolveAssemblyReference.cache
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\obj\Debug\MainWindow.g.cs
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\obj\Debug\App.g.cs
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\obj\Debug\FrendChat_MarkupCompile.cache
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\obj\Debug\FrendChat_MarkupCompile.lref
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\obj\Debug\MainWindow.baml
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\obj\Debug\FrendChat.g.resources
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\obj\Debug\FrendChat.Properties.Resources.resources
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\obj\Debug\FrendChat.csproj.GenerateResource.Cache
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\obj\Debug\FrendChat.exe
+C:\Users\Alex\OneDrive\Programming\Git\FrendChat\Windows Client\FrendChat\obj\Debug\FrendChat.pdb
