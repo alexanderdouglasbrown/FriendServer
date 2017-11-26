@@ -6,7 +6,23 @@
 
 using namespace std;
 
+Database *Database::instance = nullptr;
+
 Database::Database()
+{
+}
+
+Database *Database::getInstance()
+{
+    if (instance == nullptr)
+    {
+        instance = new Database();
+    }
+
+    return instance;
+}
+
+void Database::openDB()
 {
     if (sqlite3_open(DBNAME, &db) != SQLITE_OK)
     {

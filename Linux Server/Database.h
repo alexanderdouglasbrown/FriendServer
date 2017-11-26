@@ -8,14 +8,19 @@ using namespace std;
 class Database
 {
 private:
+  static Database *instance;
+
   const char *DBNAME = "frendchat.db";
   sqlite3 *db;
 
+  Database();
+
   vector<vector<string>> sqlCommand(string);
-  void printSQLResult(vector<vector<string>>);
+  void printSQLResult(vector<vector<string>>); //Debug function
 
 public:
-  Database();
+  static Database *getInstance();
+  void openDB();
   void closeDB();
 
   bool checkCredentials(string, string);

@@ -7,36 +7,39 @@
 
 using namespace std;
 
-Socket::Socket(int port)
+Socket::Socket()
 {
-    this->port = port;
-
     socketAddress.sin_family = AF_INET;
     socketAddress.sin_addr.s_addr = INADDR_ANY;
+}
+
+int Socket::createSocket(int port)
+{
+    int socketHandle;
     socketAddress.sin_port = htons(port);
 
     if ((socketHandle = socket(AF_INET, SOCK_STREAM, 0)) == 0)
     {
         cerr << "Failed to create socket." << endl;
-        return;
+        return socketHandle;
     }
 
     if (bind(socketHandle, (struct sockaddr *)&socketAddress, sizeof(socketAddress)) < 0)
     {
         cerr << "Failed to bind socket." << endl;
-        return;
+        return socketHandle;
     }
 
     if (listen(socketHandle, BACKLOG) < 0)
     {
         cerr << "Failed to listen to socket." << endl;
-        return;
+        return socketHandle;
     }
 
-    cout << "Listening on port " << port << "..." << endl;
+    return socketHandle;
 }
 
-int Socket::acceptConnection()
+int Socket::acceptConnection(int socketHandle)
 {
     int socketAddressLength = sizeof(socketAddress);
     int clientSocket;
@@ -65,6 +68,9 @@ string Socket::readSocket(int clientSocket)
 
         memset(buffer, '\0', BUFFER_SIZE);
     }
+
+    if (status == 0)
+        return "DROP";
 
     return message;
 }

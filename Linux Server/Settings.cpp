@@ -9,7 +9,9 @@ using namespace std;
 Settings::Settings()
 {
     ifstream settingsStream;
-    if (openFile(settingsStream))
+    settingsStream.open(SETTINGS_PATH);
+
+    if (settingsStream.is_open())
     {
         parseFile(settingsStream);
         settingsStream.close();
@@ -23,12 +25,6 @@ Settings::Settings()
 int Settings::getPortNumber()
 {
     return port;
-}
-
-bool Settings::openFile(ifstream &settingsStream)
-{
-    settingsStream.open(SETTINGS_PATH);
-    return settingsStream.is_open();
 }
 
 void Settings::parseFile(ifstream &settingsStream)

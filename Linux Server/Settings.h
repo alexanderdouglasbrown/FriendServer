@@ -11,7 +11,6 @@ private:
   
   int port = DEFAULT_PORT;
 
-  bool openFile(ifstream &);
   void parseFile(ifstream &);
   void parseCommand(string, string);
 
