@@ -76,7 +76,8 @@ vector<vector<string>> Database::sqlCommand(string sql)
 
 void Database::closeDB()
 {
-    sqlite3_close(db);
+    if (db != NULL)
+        sqlite3_close(db);
 }
 
 bool Database::checkCredentials(string username, string password)

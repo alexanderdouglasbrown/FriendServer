@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+
 using namespace std;
 
 Settings::Settings()
@@ -15,7 +16,7 @@ Settings::Settings()
     }
     else
     {
-        cerr << "Error: Failed to open settings.conf. Using default port." << endl;
+        cerr << "Error: Failed to open " << SETTINGS_PATH << "." << endl;
     }
 }
 
@@ -26,15 +27,13 @@ int Settings::getPortNumber()
 
 bool Settings::openFile(ifstream &settingsStream)
 {
-    settingsStream.open(SETTINGSPATH);
+    settingsStream.open(SETTINGS_PATH);
     return settingsStream.is_open();
 }
 
 void Settings::parseFile(ifstream &settingsStream)
 {
-    string line;
-    string command, value;
-    int lineNum = 1;
+    string line, command, value;
 
     //Read line by line from settings.conf
     while (getline(settingsStream, line))

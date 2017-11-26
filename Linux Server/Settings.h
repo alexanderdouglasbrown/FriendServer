@@ -6,10 +6,10 @@ using namespace std;
 class Settings
 {
 private:
-  const int DEFAULTPORT = 41260;
-  const string SETTINGSPATH = "settings.conf";
+  const int DEFAULT_PORT = 41260;
+  const string SETTINGS_PATH = "settings.conf";
   
-  int port = DEFAULTPORT;
+  int port = DEFAULT_PORT;
 
   bool openFile(ifstream &);
   void parseFile(ifstream &);
