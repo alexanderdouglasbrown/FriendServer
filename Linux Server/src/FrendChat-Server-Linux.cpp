@@ -16,7 +16,7 @@ int socketWorker(int, int);
 int main()
 {
 	signal(SIGINT, quitSignal);
-	cout << ANSI_BACKGROUND_BLUE << ANSI_WHITE << "FrendChat Server" << ANSI_RESET << endl;
+	cout << ANSI_BACKGROUND_BLUE << ANSI_WHITE << "Frend Chat Server" << ANSI_RESET << endl;
 
 	Settings settings;
 	Database *db = Database::getInstance();

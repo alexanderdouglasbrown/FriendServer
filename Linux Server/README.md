@@ -1,4 +1,4 @@
-# FrendChat-Server-Linux
+# Frend Chat Server (Linux)
 
 ## Required packages
 

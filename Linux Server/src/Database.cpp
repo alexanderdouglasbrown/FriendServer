@@ -92,7 +92,7 @@ vector<vector<string>> Database::sqlCommand(string sql)
 
 void Database::closeDB()
 {
-    if (db != NULL)
+    if (db != nullptr)
         sqlite3_close(db);
 }
 

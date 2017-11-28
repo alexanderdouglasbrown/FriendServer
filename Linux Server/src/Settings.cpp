@@ -31,13 +31,11 @@ void Settings::parseFile(ifstream &settingsStream)
 {
     string line, command, value;
 
-    //Read line by line from settings.conf
     while (getline(settingsStream, line))
     {
         istringstream iss(line);
         iss >> command;
 
-        //Send to parse if not a comment
         if (command.length() >= 1)
         {
             if (command.at(0) != '#')
