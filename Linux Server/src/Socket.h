@@ -7,8 +7,8 @@ using namespace std;
 class Socket
 {
 private:
-  const int BACKLOG = 5;
-  struct sockaddr_in socketAddress;
+  const int BACKLOG = 10;
+  struct sockaddr_in6 socketAddress;
 
 public:
   Socket();

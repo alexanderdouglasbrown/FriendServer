@@ -9,18 +9,27 @@ using namespace std;
 
 Socket::Socket()
 {
-    socketAddress.sin_family = AF_INET;
-    socketAddress.sin_addr.s_addr = INADDR_ANY;
+    memset(&socketAddress, 0, sizeof(socketAddress));
+    socketAddress.sin6_family = AF_INET6;
+    socketAddress.sin6_addr = in6addr_any;
 }
 
 int Socket::createSocket(int port)
 {
     int socketHandle;
-    socketAddress.sin_port = htons(port);
+    int on = 1;
+    socketAddress.sin6_port = htons(port);
 
-    if ((socketHandle = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+    if ((socketHandle = socket(socketAddress.sin6_family, SOCK_STREAM, 0)) < 0)
     {
         cerr << "Failed to create socket." << endl;
+        return socketHandle;
+    }
+
+    if (setsockopt(socketHandle, SOL_SOCKET, SO_REUSEADDR,
+                   (char *)&on, sizeof(on)) < 0)
+    {
+        cerr << "Failed to set socket options.";
         return socketHandle;
     }
 
@@ -49,28 +58,4 @@ int Socket::acceptConnection(int socketHandle)
         cerr << "An error occured while accepting a connection." << endl;
     }
     return clientSocket;
-}
-
-string Socket::readSocket(int clientSocket)
-{
-    const int BUFFER_SIZE = 2048;
-
-    char buffer[BUFFER_SIZE] = {'\0'};
-    int status;
-    string message = "";
-
-    while ((status = read(clientSocket, buffer, BUFFER_SIZE)) > 0)
-    {
-        message += string(buffer);
-
-        if (buffer[BUFFER_SIZE - 1] == '\0')
-            break;
-
-        memset(buffer, '\0', BUFFER_SIZE);
-    }
-
-    if (status == 0)
-        return "DROP";
-
-    return message;
 }

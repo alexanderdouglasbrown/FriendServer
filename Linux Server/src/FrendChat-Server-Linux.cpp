@@ -4,6 +4,7 @@
 #include <signal.h>
 
 #include "Socket.h"
+#include "ClientSocket.h"
 #include "Settings.h"
 #include "Database.h"
 #include "Color.h"
@@ -11,7 +12,7 @@
 using namespace std;
 
 void quitSignal(int);
-int socketWorker(int, int);
+int clientSocketWorker(int, int);
 
 int main()
 {
@@ -32,7 +33,7 @@ int main()
 	{
 		int clientSocket = socketObject.acceptConnection(serverHandle);
 
-		thread connection(socketWorker, clientSocket, serverHandle);
+		thread connection(clientSocketWorker, clientSocket, serverHandle);
 		connection.detach();
 	}
 
@@ -46,18 +47,27 @@ void quitSignal(int signal)
 	exit(EXIT_SUCCESS);
 }
 
-int socketWorker(int clientSocket, int serverHandle)
+int clientSocketWorker(int clientSocket, int serverHandle)
 {
 	cout << "Thread created." << endl;
-	Socket socketObject;
+	ClientSocket socketObject(clientSocket);
 
 	while (true)
 	{
-		string rcvMessage = socketObject.readSocket(clientSocket);
+		string rcvMessage = socketObject.readSocket();
 		if (rcvMessage == "DROP")
 			break;
 		else
+		{
 			cout << rcvMessage;
+			socketObject.sendSocket("This string needs to be kinda long to test my buffer. Is this working? Let's hope so!!");
+		}
 	}
 	cout << "Client disconnected." << endl;
 }
+
+// void parseReply(ClientSocket &socketObject, string rcvMessage)
+// {
+// 	if (rcvMessage=="FREND_CHAT")
+// 		socketObject.
+// }
