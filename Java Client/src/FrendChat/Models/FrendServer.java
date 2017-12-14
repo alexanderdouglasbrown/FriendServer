@@ -67,9 +67,7 @@ public class FrendServer {
                 try {
                     out.println("LOGIN" + username + " " + password);
 
-                    String message = in.readLine();
-                    System.out.println(message);
-                    if (message.equals("CREDENTIALS_OKAY"))
+                    if (in.readLine().equals("CREDENTIALS_OKAY"))
                         login.mdlCredentialsAccepted();
                     else
                         login.mdlCredentialsRejected();

@@ -56,9 +56,9 @@ bool ClientSocket::sendSocket(string message)
     while (offset < bufferLength)
     {
         char buffer[bufferLength] = {'\0'};
-        strncpy(buffer, message.c_str() + offset, sizeof(buffer) - 1);
+        strncpy(buffer, message.c_str() + offset, sizeof(buffer));
 
-        status = send(clientSocket, buffer + offset, bufferLength - 1, 0);
+        status = send(clientSocket, buffer + offset, bufferLength, 0);
         if (status == -1)
             return false;
 
