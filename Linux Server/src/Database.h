@@ -2,8 +2,11 @@
 #include <sqlite3.h>
 #include <vector>
 #include <string>
+#include <mutex>
 
 using namespace std;
+
+static mutex dbMutex;
 
 class Database
 {

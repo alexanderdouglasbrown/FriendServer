@@ -17,7 +17,6 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
-        //Parent root = FXMLLoader.load(getClass().getResource("/FrendChat/Views/Connect.fxml"));
         Parent root = FXMLLoader.load(getClass().getResource("/FrendChat/Views/Connect.fxml"));
         primaryStage.setTitle("Frend Chat");
         primaryStage.setScene(new Scene(root));

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <thread>
-#include <mutex>
+#include <string>
 #include <signal.h>
 
 #include "Socket.h"
@@ -49,7 +49,6 @@ void quitSignal(int signal)
 
 int clientSocketWorker(int clientSocket, int serverHandle)
 {
-	cout << "Thread created." << endl;
 	ClientSocket socketObject(clientSocket);
 
 	while (true)
@@ -58,16 +57,6 @@ int clientSocketWorker(int clientSocket, int serverHandle)
 		if (rcvMessage == "DROP")
 			break;
 		else
-		{
-			cout << rcvMessage;
-			socketObject.sendSocket("This string needs to be kinda long to test my buffer. Is this working? Let's hope so!!");
-		}
+			socketObject.parseReply(rcvMessage);
 	}
-	cout << "Client disconnected." << endl;
 }
-
-// void parseReply(ClientSocket &socketObject, string rcvMessage)
-// {
-// 	if (rcvMessage=="FREND_CHAT")
-// 		socketObject.
-// }

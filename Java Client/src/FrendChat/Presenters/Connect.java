@@ -48,7 +48,7 @@ public class Connect {
 
         btnConnect.setVisible(false);
         uiProgress.setVisible(true);
-        frendServer.Connect(txtIP.getText(), port, this);
+        frendServer.connect(txtIP.getText(), port, this);
     }
 
     public void mdlConnectSuccessful() {

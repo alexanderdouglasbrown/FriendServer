@@ -1,12 +1,18 @@
 package FrendChat.Models;
 
 import FrendChat.Presenters.Connect;
+import FrendChat.Presenters.Login;
 import javafx.concurrent.Task;
-import java.io.IOException;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 public class FrendServer {
     Socket socket;
+    PrintWriter out;
+    BufferedReader in;
 
     private static FrendServer ourInstance = new FrendServer();
 
@@ -17,14 +23,25 @@ public class FrendServer {
     private FrendServer() {
     }
 
-    public void Connect(String ip, int port, Connect connect) {
+    public void connect(String ip, int port, Connect connect) {
         Task task = new Task<Void>() {
             @Override
             public Void call() {
                 try {
                     socket = new Socket(ip, port);
-                    connect.mdlConnectSuccessful();
-                } catch (IOException e) {
+                    socket.setSoTimeout(2000);
+
+                    out = new PrintWriter(socket.getOutputStream(), true);
+                    out.println("FREND_SERVER");
+
+                    in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                    if (in.readLine().equals("FREND_RECIEVED"))
+                        connect.mdlConnectSuccessful();
+                    else
+                        connect.mdlConnectUnsuccessful();
+
+                } catch (Exception e) {
                     connect.mdlConnectUnsuccessful();
                 }
                 return null;
@@ -32,13 +49,57 @@ public class FrendServer {
         };
 
         new Thread(task).start();
+    }
 
+    public void closeConnection() {
+        try {
+            if (socket != null) {
+                socket.close();
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    public void login(String username, String password, Login login) {
+        Task task = new Task<Void>() {
+            @Override
+            public Void call() {
+                try {
+                    out.println("LOGIN" + username + " " + password);
+
+                    String message = in.readLine();
+                    System.out.println(message);
+                    if (message.equals("CREDENTIALS_OKAY"))
+                        login.mdlCredentialsAccepted();
+                    else
+                        login.mdlCredentialsRejected();
+                } catch (Exception e) {
+                    login.mdlConnectionError();
+                }
+                return null;
+            }
+        };
+
+        new Thread(task).start();
+    }
+
+    public void register(String username, String password, String colorHex, Login login) {
+//        Task task = new Task<Void>() {
+//            @Override
+//            public Void call() {
+//                try {
+//                    out.println("REG" + colorHex + username + " " + password);
+//                    if (in.readLine() == "CREDENTIALS_OKAY")
+//                        login.mdlCredentialsAccepted();
+//                    else
+//                        login.mdlCredentialsRejected();
+//                } catch (Exception e) {
+//                    login.mdlConnectionError();
+//                }
+//                return null;
+//            }
+//        };
+//
+//        new Thread(task).start();
     }
 }
-
-
-//                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-//                    // Untested sample code
-//                    //BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-//                    out.println("Hello World!");
-//                    socket.close();

@@ -3,6 +3,11 @@
         "iosfwd": "cpp",
         "xlocale": "cpp",
         "xstring": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "ios": "cpp",
+        "xiosbase": "cpp",
+        "vector": "cpp",
+        "string": "cpp",
+        "mutex": "cpp"
     }
 }
