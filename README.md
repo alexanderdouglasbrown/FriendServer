@@ -1,3 +1,5 @@
-# Frend Chat (WIP)
+# Frend Chat Server (Linux)
 
-A program to chat with your 'frends' :)
+## Required packages
+
+g++ make sqlite libsqlite3-dev
