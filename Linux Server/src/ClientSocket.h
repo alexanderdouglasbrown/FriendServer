@@ -10,6 +10,9 @@ class ClientSocket
     int clientSocket;
     string CRLF = "\r\n";
 
+    void handleLogin(string);
+    void handleRegistration(string);
+
   public:
     ClientSocket(int);
     string readSocket();

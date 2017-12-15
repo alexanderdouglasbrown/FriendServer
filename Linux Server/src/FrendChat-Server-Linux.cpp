@@ -7,6 +7,7 @@
 #include "ClientSocket.h"
 #include "Settings.h"
 #include "Database.h"
+#include "Broadcaster.h"
 #include "Color.h"
 
 using namespace std;

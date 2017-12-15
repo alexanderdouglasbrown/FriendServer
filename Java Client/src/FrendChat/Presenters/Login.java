@@ -12,7 +12,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class Login {
@@ -108,11 +107,11 @@ public class Login {
             return;
         }
 
-        if (pswRegisterPassword.getLength() == 0) {
+        if (pswRegisterPassword.getLength() < 8) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Frend Chat");
-            alert.setHeaderText("Password Field Is Empty");
-            alert.setContentText("You have not typed in a password.");
+            alert.setHeaderText("Password Is Too Short");
+            alert.setContentText("Your password must be at least 8 characters in length. Please try again.");
             alert.showAndWait();
 
             return;
@@ -133,8 +132,6 @@ public class Login {
         byte blue = (byte) (clrRegisterColor.getValue().getBlue() * 255);
         String colorHex = String.format("#%02X%02X%02X", red, green, blue);
 
-        System.out.println(colorHex);
-
         frendServer.register(txtRegisterUsername.getText(), pswRegisterPassword.getText(), colorHex, this);
 
     }
@@ -145,6 +142,16 @@ public class Login {
             alert.setTitle("Frend Chat");
             alert.setHeaderText("Credentials Accepted");
             alert.setContentText("This is as far as Frend Chat is implemented though.");
+            alert.showAndWait();
+        });
+    }
+
+    public void mdlUsernameInUse() {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Frend Chat");
+            alert.setHeaderText("Username in Use");
+            alert.setContentText("The username you have chosen is already in use. Please choose another.");
             alert.showAndWait();
         });
     }

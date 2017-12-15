@@ -82,22 +82,26 @@ public class FrendServer {
     }
 
     public void register(String username, String password, String colorHex, Login login) {
-//        Task task = new Task<Void>() {
-//            @Override
-//            public Void call() {
-//                try {
-//                    out.println("REG" + colorHex + username + " " + password);
-//                    if (in.readLine() == "CREDENTIALS_OKAY")
-//                        login.mdlCredentialsAccepted();
-//                    else
-//                        login.mdlCredentialsRejected();
-//                } catch (Exception e) {
-//                    login.mdlConnectionError();
-//                }
-//                return null;
-//            }
-//        };
-//
-//        new Thread(task).start();
+        Task task = new Task<Void>() {
+            @Override
+            public Void call() {
+                try {
+                    out.println("REG" + colorHex + username + " " + password);
+                    String response = in.readLine();
+                    System.out.println(response);
+                    if (response.equals("USER_REGISTERED"))
+                        login.mdlCredentialsAccepted();
+                    else if (response.equals( "USERNAME_IN_USE"))
+                        login.mdlUsernameInUse();
+                    else
+                        login.mdlConnectionError();
+                } catch (Exception e) {
+                    login.mdlConnectionError();
+                }
+                return null;
+            }
+        };
+
+        new Thread(task).start();
     }
 }

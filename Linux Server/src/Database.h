@@ -19,6 +19,7 @@ private:
   Database();
 
   vector<vector<string>> sqlCommand(string);
+  string toUpper(string);
   void printSQLResult(vector<vector<string>>); //Debug function
 
 public:
@@ -27,4 +28,7 @@ public:
   void closeDB();
 
   bool checkCredentials(string, string);
+  bool checkUserExists(string);
+  string getSalt(string);
+  void registerUser(string, string, string, string);
 };

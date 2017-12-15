@@ -32,8 +32,10 @@ void Database::openDB()
 
     string sql = "CREATE TABLE IF NOT EXISTS users("
                  "id INTEGER PRIMARY KEY,"
-                 "username VARCHAR(255) NOT NULL,"
-                 "password VARCHAR(255) NOT NULL);";
+                 "username VARCHAR(50) NOT NULL,"
+                 "hash CHAR(64) NOT NULL,"
+                 "salt VARCHAR(100) NOT NULL,"
+                 "color VARCHAR(7) NOT NULL);";
 
     vector<vector<string>> result = sqlCommand(sql);
 }
@@ -96,13 +98,14 @@ void Database::closeDB()
         sqlite3_close(db);
 }
 
-bool Database::checkCredentials(string username, string password)
+bool Database::checkCredentials(string username, string hash)
 {
+    username = toUpper(username);
     const char *usr = username.c_str();
-    const char *pswd = password.c_str();
-    char *cleanSQL = sqlite3_mprintf("SELECT username, password FROM users "
-                                     "WHERE username = '%q' AND password = '%q'",
-                                     usr, pswd);
+    const char *hsh = hash.c_str();
+    char *cleanSQL = sqlite3_mprintf("SELECT UPPER(username), hash FROM users "
+                                     "WHERE UPPER(username) = UPPER('%q') AND hash = '%q'",
+                                     usr, hsh);
     vector<vector<string>> result = sqlCommand(string(cleanSQL));
     sqlite3_free(cleanSQL);
 
@@ -112,5 +115,69 @@ bool Database::checkCredentials(string username, string password)
     if (result.size() <= 0)
         return false;
 
-    return (username == result[0][0] && password == result[0][1]);
+    return (username == result[0][0] && hash == result[0][1]);
+}
+
+bool Database::checkUserExists(string username)
+{
+    username = toUpper(username);
+    const char *usr = username.c_str();
+    char *cleanSQL = sqlite3_mprintf("SELECT UPPER(username) FROM users "
+                                     "WHERE UPPER(username) = UPPER('%q')",
+                                     usr);
+    vector<vector<string>> result = sqlCommand(string(cleanSQL));
+    sqlite3_free(cleanSQL);
+
+    if (result.size() > 1)
+        cerr << "Multiple entries returned when checking user credentials. This is no good." << endl;
+
+    if (result.size() <= 0)
+        return false;
+
+    return (username == result[0][0]);
+}
+
+string Database::getSalt(string username)
+{
+    username = toUpper(username);
+    const char *usr = username.c_str();
+    char *cleanSQL = sqlite3_mprintf("SELECT salt FROM users "
+                                     "WHERE UPPER(username) = UPPER('%q')",
+                                     usr);
+    vector<vector<string>> result = sqlCommand(string(cleanSQL));
+    sqlite3_free(cleanSQL);
+
+    if (result.size() > 1)
+        cerr << "Multiple entries returned when checking user credentials. This is no good." << endl;
+
+    if (result.size() <= 0)
+        return "";
+
+    return result[0][0];
+}
+
+void Database::registerUser(string username, string hash, string salt, string color)
+{
+    const char *usr = username.c_str();
+    const char *hsh = hash.c_str();
+    const char *slt = salt.c_str();
+    const char *clr = color.c_str();
+
+    char *cleanSQL = sqlite3_mprintf("INSERT INTO users(username, hash, salt, color) "
+                                     "VALUES('%q','%q','%q','%q');",
+                                     usr, hsh, slt, clr);
+    vector<vector<string>> result = sqlCommand(string(cleanSQL));
+    sqlite3_free(cleanSQL);
+
+    return;
+}
+
+string Database::toUpper(string fixme)
+{
+    for (int i = 0; i < fixme.size(); i++)
+    {
+        if (fixme[i] >= 97 && fixme[i] <= 122)
+            fixme[i] -= 32;
+    }
+    return fixme;
 }
