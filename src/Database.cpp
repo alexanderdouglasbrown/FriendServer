@@ -10,20 +10,6 @@ Database *Database::instance = nullptr;
 
 Database::Database()
 {
-}
-
-Database *Database::getInstance()
-{
-    if (instance == nullptr)
-    {
-        instance = new Database();
-    }
-
-    return instance;
-}
-
-void Database::openDB()
-{
     if (sqlite3_open(DBNAME, &db) != SQLITE_OK)
     {
         cerr << "An error occured while trying to open the database." << endl;
@@ -38,6 +24,16 @@ void Database::openDB()
                  "color VARCHAR(7) NOT NULL);";
 
     vector<vector<string>> result = sqlCommand(sql);
+}
+
+Database *Database::getInstance()
+{
+    if (instance == nullptr)
+    {
+        instance = new Database();
+    }
+
+    return instance;
 }
 
 //For debug since I'm doing everything without an IDE
@@ -64,12 +60,14 @@ void Database::printSQLResult(vector<vector<string>> result)
 
 vector<vector<string>> Database::sqlCommand(string sql)
 {
+    lock_guard<mutex> lock(mu);
+
     sqlite3_stmt *statement;
     vector<vector<string>> result;
 
     if (sqlite3_prepare_v2(db, sql.c_str(), -1, &statement, 0) != SQLITE_OK)
     {
-        cerr << "\nAn error occurred during a database operation." << endl;
+        cerr << "An error occurred during a database operation." << endl;
     }
     else
     {
@@ -142,6 +140,25 @@ string Database::getSalt(string username)
     username = toUpper(username);
     const char *usr = username.c_str();
     char *cleanSQL = sqlite3_mprintf("SELECT salt FROM users "
+                                     "WHERE UPPER(username) = UPPER('%q')",
+                                     usr);
+    vector<vector<string>> result = sqlCommand(string(cleanSQL));
+    sqlite3_free(cleanSQL);
+
+    if (result.size() > 1)
+        cerr << "Multiple entries returned when checking user credentials. This is no good." << endl;
+
+    if (result.size() <= 0)
+        return "";
+
+    return result[0][0];
+}
+
+string Database::getColor(string username)
+{
+    username = toUpper(username);
+    const char *usr = username.c_str();
+    char *cleanSQL = sqlite3_mprintf("SELECT color FROM users "
                                      "WHERE UPPER(username) = UPPER('%q')",
                                      usr);
     vector<vector<string>> result = sqlCommand(string(cleanSQL));

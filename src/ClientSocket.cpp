@@ -1,13 +1,10 @@
 #include "ClientSocket.h"
+#include "SocketIO.h"
 #include "Database.h"
+#include "Broadcaster.h"
 #include "../ext/sha256.h"
 
-#include <string.h>
-#include <mutex>
 #include <chrono>
-#include <sys/socket.h>
-#include <sys/unistd.h>
-#include <netinet/in.h>
 
 using namespace std;
 
@@ -18,54 +15,14 @@ ClientSocket::ClientSocket(int clientSocket)
 
 string ClientSocket::readSocket()
 {
-    const int BUFFER_SIZE = 2048;
-    char buffer[BUFFER_SIZE] = {'\0'};
-    int status;
-    string message = "";
-
-    while ((status = read(clientSocket, buffer, BUFFER_SIZE)) > 0)
-    {
-        message += string(buffer);
-
-        if (buffer[BUFFER_SIZE - 1] == '\0')
-            break;
-
-        memset(buffer, '\0', BUFFER_SIZE);
-    }
-
-    if (status == 0)
-        return "DROP";
-
-    //Strip carriage return for predicatble messages between Windows/macOS/Linux
-    int carriageReturnPos;
-    if ((carriageReturnPos = message.find_last_of("\r")) != -1)
-    {
-        message.erase(carriageReturnPos, 1);
-    }
-
-    return message;
+    SocketIO socketObject(clientSocket);
+    return socketObject.readSocket();
 }
 
 bool ClientSocket::sendSocket(string message)
 {
-    int bufferLength = message.length();
-    int status;
-    int offset = 0;
-
-    while (offset < bufferLength)
-    {
-        char buffer[bufferLength] = {'\0'};
-        strncpy(buffer, message.c_str() + offset, sizeof(buffer));
-
-        status = send(clientSocket, buffer + offset, bufferLength, 0);
-        if (status == -1)
-            return false;
-
-        offset += status;
-        bufferLength -= status;
-    }
-
-    return true;
+    SocketIO socketObject(clientSocket);
+    return socketObject.sendSocket(message);
 }
 
 // Messages end with \n (\r is stripped)
@@ -85,6 +42,16 @@ void ClientSocket::parseReply(string message)
 
     if (message.substr(0, 3) == "REG")
         handleRegistration(message);
+
+    if (message.substr(0, 3) == "TXT")
+    {
+        handleBroadcastMessage(message);
+    }
+    if (message == "LIST\n")
+    {
+        Broadcaster *bc = Broadcaster::getInstance();
+        bc->requestUserList(clientSocket);
+    }
 }
 
 void ClientSocket::handleLogin(string message)
@@ -105,16 +72,28 @@ void ClientSocket::handleLogin(string message)
 
     Database *db = Database::getInstance();
 
-    dbMutex.lock();
     string salt = db->getSalt(username);
-    string hash = sha256(password.substr(0,256) + salt);
-    bool credentialsAccepted = db->checkCredentials(username, hash);
-    dbMutex.unlock();
 
-    if (credentialsAccepted)
-        this->sendSocket("CREDENTIALS_OKAY" + CRLF);
-    else
+    string hash = sha256(password.substr(0, 256) + salt);
+    bool credentialsAccepted = db->checkCredentials(username, hash);
+
+    if (!credentialsAccepted)
+    {
         this->sendSocket("CREDENTIALS_DENIED" + CRLF);
+    }
+    else
+    {
+        this->sendSocket("CREDENTIALS_OKAY" + CRLF);
+        string color = db->getColor(username);
+
+        storedUsername = username;
+        storedColor = color;
+
+        Broadcaster *bc = Broadcaster::getInstance();
+        bc->addToSocketList(clientSocket, username, color);
+    }
+
+    return;
 }
 
 void ClientSocket::handleRegistration(string message)
@@ -134,9 +113,7 @@ void ClientSocket::handleRegistration(string message)
 
     Database *db = Database::getInstance();
 
-    dbMutex.lock();
     bool usernameExists = db->checkUserExists(username);
-    dbMutex.unlock();
 
     if (usernameExists)
     {
@@ -149,11 +126,31 @@ void ClientSocket::handleRegistration(string message)
 
     hash = sha256(password.substr(0, 256) + salt);
 
-    dbMutex.lock();
     db->registerUser(username, hash, salt, color);
-    dbMutex.unlock();
+
+    storedUsername = username;
+    storedColor = color;
+
+    Broadcaster *bc = Broadcaster::getInstance();
+    bc->addToSocketList(clientSocket, username, color);
 
     this->sendSocket("USER_REGISTERED" + CRLF);
 
     return;
+}
+
+void ClientSocket::handleBroadcastMessage(string message)
+{
+    //Strip \n
+    int lineFeedPos;
+    if ((lineFeedPos = message.find_last_of("\n")) != -1)
+    {
+        message.erase(lineFeedPos, 1);
+    }
+
+    // Build formatted message
+    string formattedMessage = "<div><b><font color='" + storedColor + "'>" + storedUsername + "</font>:</b> " + message.substr(3, message.length() - 3) + "</div>";
+
+    Broadcaster *bc = Broadcaster::getInstance();
+    bc->broadcastMessage(formattedMessage);
 }

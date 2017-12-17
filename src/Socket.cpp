@@ -17,6 +17,11 @@ Socket::Socket()
 int Socket::createSocket(int port)
 {
     int socketHandle;
+
+    struct timeval timeout;
+    timeout.tv_sec = 3;
+    timeout.tv_usec = 0;
+
     int on = 1;
     socketAddress.sin6_port = htons(port);
 
@@ -26,10 +31,15 @@ int Socket::createSocket(int port)
         return socketHandle;
     }
 
-    if (setsockopt(socketHandle, SOL_SOCKET, SO_REUSEADDR,
-                   (char *)&on, sizeof(on)) < 0)
+    if (setsockopt(socketHandle, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on)) < 0)
     {
-        cerr << "Failed to set socket options.";
+        cerr << "Failed to set socket options." << endl;
+        return socketHandle;
+    }
+
+    if (setsockopt(socketHandle, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0)
+    {
+        cerr << "Failed to set socket option (Send timeout)" << endl;
         return socketHandle;
     }
 

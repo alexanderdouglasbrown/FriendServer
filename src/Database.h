@@ -6,12 +6,11 @@
 
 using namespace std;
 
-static mutex dbMutex;
-
 class Database
 {
 private:
   static Database *instance;
+  mutex mu;
 
   const char *DBNAME = "frendchat.db";
   sqlite3 *db;
@@ -24,11 +23,11 @@ private:
 
 public:
   static Database *getInstance();
-  void openDB();
   void closeDB();
 
   bool checkCredentials(string, string);
   bool checkUserExists(string);
   string getSalt(string);
+  string getColor(string);
   void registerUser(string, string, string, string);
 };

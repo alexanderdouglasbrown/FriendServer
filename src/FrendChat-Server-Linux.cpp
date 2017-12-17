@@ -4,6 +4,7 @@
 #include <signal.h>
 
 #include "Socket.h"
+#include "SocketIO.h"
 #include "ClientSocket.h"
 #include "Settings.h"
 #include "Database.h"
@@ -13,7 +14,8 @@
 using namespace std;
 
 void quitSignal(int);
-int clientSocketWorker(int, int);
+void clientSocketWorker(int);
+void broadcastWorker();
 
 int main()
 {
@@ -24,8 +26,6 @@ int main()
 	Database *db = Database::getInstance();
 	Socket socketObject;
 
-	db->openDB();
-
 	int serverHandle = socketObject.createSocket(settings.getPortNumber());
 
 	cout << "Listening on port " << settings.getPortNumber() << "..." << endl;
@@ -34,8 +34,11 @@ int main()
 	{
 		int clientSocket = socketObject.acceptConnection(serverHandle);
 
-		thread connection(clientSocketWorker, clientSocket, serverHandle);
-		connection.detach();
+		if (clientSocket != -1)
+		{
+			thread connection(clientSocketWorker, clientSocket);
+			connection.detach();
+		}
 	}
 
 	return 0;
@@ -48,7 +51,7 @@ void quitSignal(int signal)
 	exit(EXIT_SUCCESS);
 }
 
-int clientSocketWorker(int clientSocket, int serverHandle)
+void clientSocketWorker(int clientSocket)
 {
 	ClientSocket socketObject(clientSocket);
 
@@ -60,4 +63,7 @@ int clientSocketWorker(int clientSocket, int serverHandle)
 		else
 			socketObject.parseReply(rcvMessage);
 	}
+	
+	Broadcaster *bc = Broadcaster::getInstance();
+	bc->removeFromSocketList(clientSocket);
 }

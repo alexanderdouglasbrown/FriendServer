@@ -1,20 +1,12 @@
 {
     "files.associations": {
-        "iosfwd": "cpp",
-        "xlocale": "cpp",
         "xstring": "cpp",
-        "ostream": "cpp",
-        "ios": "cpp",
-        "xiosbase": "cpp",
-        "vector": "cpp",
-        "string": "cpp",
-        "mutex": "cpp",
-        "chrono": "cpp",
-        "iostream": "cpp",
-        "thread": "cpp",
-        "xlocnum": "cpp",
-        "memory": "cpp",
         "system_error": "cpp",
-        "type_traits": "cpp"
+        "initializer_list": "cpp",
+        "list": "cpp",
+        "type_traits": "cpp",
+        "vector": "cpp",
+        "xhash": "cpp",
+        "xutility": "cpp"
     }
 }
