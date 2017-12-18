@@ -63,7 +63,7 @@ void clientSocketWorker(int clientSocket)
 		else
 			socketObject.parseReply(rcvMessage);
 	}
-	
+
 	Broadcaster *bc = Broadcaster::getInstance();
 	bc->removeFromSocketList(clientSocket);
 }

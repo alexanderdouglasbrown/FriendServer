@@ -1,5 +1,5 @@
 #pragma once
-#include "ClientSocket.h"
+#include "SocketIO.h"
 
 #include <mutex>
 #include <vector>
@@ -17,6 +17,8 @@ private:
     string color;
   };
 
+  SocketIO socketObject;
+
   string CRLF = "\r\n";
   mutex mu;
   vector<clientInfo> socketList;
@@ -31,9 +33,9 @@ private:
 
 public:
   static Broadcaster *getInstance();
+
   void addToSocketList(int, string, string);
   void removeFromSocketList(int);
   void broadcastMessage(string);
   void requestUserList(int);
-
 };

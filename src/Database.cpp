@@ -185,8 +185,27 @@ void Database::registerUser(string username, string hash, string salt, string co
                                      usr, hsh, slt, clr);
     vector<vector<string>> result = sqlCommand(string(cleanSQL));
     sqlite3_free(cleanSQL);
+}
 
-    return;
+void Database::updatePassword(string username, string hash, string salt)
+{
+    const char *usr = username.c_str();
+    const char *hsh = hash.c_str();
+    const char *slt = salt.c_str();
+
+    char *cleanSQL = sqlite3_mprintf("UPDATE users SET hash='%q', salt='%q' WHERE UPPER(username)=UPPER('%q');", hsh, slt, usr);
+    vector<vector<string>> result = sqlCommand(string(cleanSQL));
+    sqlite3_free(cleanSQL);
+}
+
+void Database::updateColor(string username, string color)
+{
+    const char *usr = username.c_str();
+    const char *clr = color.c_str();
+
+    char *cleanSQL = sqlite3_mprintf("UPDATE users SET color='%q' WHERE UPPER(username)=UPPER('%q');", clr, usr);
+    vector<vector<string>> result = sqlCommand(string(cleanSQL));
+    sqlite3_free(cleanSQL);
 }
 
 string Database::toUpper(string fixme)

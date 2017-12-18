@@ -5,19 +5,18 @@
 #include <sys/unistd.h>
 #include <netinet/in.h>
 
-SocketIO::SocketIO(int socket)
+SocketIO::SocketIO()
 {
-    this->socket = socket;
 }
 
-string SocketIO::readSocket()
+string SocketIO::readSocket(int clientSocket)
 {
     const int BUFFER_SIZE = 2048;
     char buffer[BUFFER_SIZE] = {'\0'};
     int status;
     string message = "";
 
-    while ((status = read(socket, buffer, BUFFER_SIZE)) > 0)
+    while ((status = read(clientSocket, buffer, BUFFER_SIZE)) > 0)
     {
         message += string(buffer);
 
@@ -40,7 +39,7 @@ string SocketIO::readSocket()
     return message;
 }
 
-bool SocketIO::sendSocket(string message)
+bool SocketIO::sendSocket(int clientSocket, string message)
 {
     int bufferLength = message.length();
     int status;
@@ -51,7 +50,7 @@ bool SocketIO::sendSocket(string message)
         char buffer[bufferLength] = {'\0'};
         strncpy(buffer, message.c_str() + offset, sizeof(buffer));
 
-        status = send(socket, buffer + offset, bufferLength, 0);
+        status = send(clientSocket, buffer + offset, bufferLength, 0);
         if (status == -1)
             return false;
 
@@ -60,4 +59,9 @@ bool SocketIO::sendSocket(string message)
     }
 
     return true;
+}
+
+void SocketIO::closeSocket(int clientSocket)
+{
+    close(clientSocket);
 }

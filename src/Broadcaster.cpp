@@ -1,5 +1,4 @@
 #include "Broadcaster.h"
-#include "SocketIO.h"
 
 #include <vector>
 #include <thread>
@@ -23,11 +22,11 @@ Broadcaster *Broadcaster::getInstance()
     return instance;
 }
 
-void Broadcaster::addToSocketList(int socket, string username, string color)
+void Broadcaster::addToSocketList(int clientSocket, string username, string color)
 {
     clientInfo newClient;
     newClient.username = username;
-    newClient.socket = socket;
+    newClient.socket = clientSocket;
     newClient.color = color;
 
     lock_guard<mutex> lock(mu);
@@ -35,25 +34,31 @@ void Broadcaster::addToSocketList(int socket, string username, string color)
 
     for (int i = 0; i < socketList.size() - 1; i++)
     {
-        thread broadcaster(&Broadcaster::userJoinBroadcastWorker, this, socketList[i].socket, username, color);
-        broadcaster.detach();
+        if (socketList[i].username == username)
+        {
+            socketObject.closeSocket(socketList[i].socket);
+        }
+        else
+        {
+            thread broadcaster(&Broadcaster::userJoinBroadcastWorker, this, socketList[i].socket, username, color);
+            broadcaster.detach();
+        }
     }
 }
 
-void Broadcaster::userJoinBroadcastWorker(int socket, string username, string color)
+void Broadcaster::userJoinBroadcastWorker(int clientSocket, string username, string color)
 {
-    SocketIO socketObject(socket);
-    socketObject.sendSocket("JOIN" + color + username + CRLF);
+    socketObject.sendSocket(clientSocket, "JOIN" + color + username + CRLF);
 }
 
-void Broadcaster::removeFromSocketList(int socket)
+void Broadcaster::removeFromSocketList(int clientSocket)
 {
     lock_guard<mutex> lock(mu);
     string leavingUsername;
 
     for (int i = 0; i < socketList.size(); i++)
     {
-        if (socketList[i].socket == socket)
+        if (socketList[i].socket == clientSocket)
         {
             leavingUsername = socketList[i].username;
             socketList.erase(socketList.begin() + i);
@@ -68,10 +73,9 @@ void Broadcaster::removeFromSocketList(int socket)
     }
 }
 
-void Broadcaster::userLeaveBroadcastWorker(int socket, string username)
+void Broadcaster::userLeaveBroadcastWorker(int clientSocket, string username)
 {
-    SocketIO socketObject(socket);
-    socketObject.sendSocket("LEAVE" + username + CRLF);
+    socketObject.sendSocket(clientSocket, "LEAVE" + username + CRLF);
 }
 
 void Broadcaster::broadcastMessage(string message)
@@ -85,27 +89,25 @@ void Broadcaster::broadcastMessage(string message)
     }
 }
 
-void Broadcaster::messageBroadcastWorker(int socket, string message)
+void Broadcaster::messageBroadcastWorker(int clientSocket, string message)
 {
-    SocketIO socketObject(socket);
-    socketObject.sendSocket("BRD" + message + CRLF);
+    socketObject.sendSocket(clientSocket, "BRD" + message + CRLF);
 }
 
-void Broadcaster::requestUserList(int socket)
+void Broadcaster::requestUserList(int clientSocket)
 {
     lock_guard<mutex> lock(mu);
     vector<clientInfo> usersOnline(socketList);
     mu.unlock();
 
-    thread broadcaster(&Broadcaster::userListBroadcastWorker, this, socket, usersOnline);
+    thread broadcaster(&Broadcaster::userListBroadcastWorker, this, clientSocket, usersOnline);
     broadcaster.detach();
 }
 
-void Broadcaster::userListBroadcastWorker(int socket, vector<clientInfo> usersOnline)
+void Broadcaster::userListBroadcastWorker(int clientSocket, vector<clientInfo> usersOnline)
 {
-    SocketIO socketObject(socket);
     for (int i = 0; i < usersOnline.size(); i++)
-        socketObject.sendSocket("JOIN" + usersOnline[i].color + usersOnline[i].username + CRLF);
+        socketObject.sendSocket(clientSocket, "JOIN" + usersOnline[i].color + usersOnline[i].username + CRLF);
 }
 
 void Broadcaster::printBroadcastList()

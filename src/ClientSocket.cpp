@@ -1,10 +1,10 @@
 #include "ClientSocket.h"
-#include "SocketIO.h"
 #include "Database.h"
 #include "Broadcaster.h"
 #include "../ext/sha256.h"
 
 #include <chrono>
+// #include <iostream>
 
 using namespace std;
 
@@ -15,14 +15,12 @@ ClientSocket::ClientSocket(int clientSocket)
 
 string ClientSocket::readSocket()
 {
-    SocketIO socketObject(clientSocket);
-    return socketObject.readSocket();
+    return socketObject.readSocket(clientSocket);
 }
 
 bool ClientSocket::sendSocket(string message)
 {
-    SocketIO socketObject(clientSocket);
-    return socketObject.sendSocket(message);
+    return socketObject.sendSocket(clientSocket, message);
 }
 
 // Messages end with \n (\r is stripped)
@@ -30,40 +28,83 @@ bool ClientSocket::sendSocket(string message)
 
 void ClientSocket::parseReply(string message)
 {
-    if (message == "FREND_SERVER\n")
-    {
-        //Client is looking for this exact string to verify it's connected to the right thing
-        this->sendSocket("FREND_RECIEVED" + CRLF);
-        return;
-    }
+    stripNewLine(message);
+    if (message.substr(0, 10) == "FREND_CHAT")
 
-    if (message.substr(0, 5) == "LOGIN")
+        this->sendSocket("FREND_SERVER_VER_1_00" + CRLF);
+
+    else if (message.substr(0, 5) == "LOGIN")
         handleLogin(message);
 
-    if (message.substr(0, 3) == "REG")
+    else if (message.substr(0, 3) == "REG")
         handleRegistration(message);
 
-    if (message.substr(0, 3) == "TXT")
-    {
+    else if (message.substr(0, 3) == "TXT")
         handleBroadcastMessage(message);
-    }
-    if (message == "LIST\n")
+
+    else if (message == "LIST")
     {
         Broadcaster *bc = Broadcaster::getInstance();
         bc->requestUserList(clientSocket);
     }
+
+    else if (message.substr(0, 8) == "CHK_PASS")
+        handleCheckPass(message);
+
+    else if (message.substr(0, 8) == "NEW_PASS")
+        handleNewPass(message);
+
+    else if (message.substr(0, 12) == "UPDATE_COLOR")
+        handleUpdateColor(message);
+
+    // else
+    //     cerr << "Unrecognized command: " << message << endl;
+}
+
+void ClientSocket::handleUpdateColor(string message)
+{
+    storedColor = message.substr(12);
+
+    Database *db = Database::getInstance();
+    db->updateColor(storedUsername, storedColor);
+
+    Broadcaster *bc = Broadcaster::getInstance();
+    bc->removeFromSocketList(clientSocket);
+    bc->addToSocketList(clientSocket, storedUsername, storedColor);
+
+    sendSocket("COLOR_UPDATED" + CRLF);
+}
+
+void ClientSocket::handleNewPass(string message)
+{
+    Database *db = Database::getInstance();
+    string newPass = message.substr(8, message.length() - 8);
+
+    long int time = static_cast<long int>(chrono::duration_cast<chrono::nanoseconds>(chrono::high_resolution_clock::now().time_since_epoch()).count());
+    string salt = to_string(time);
+
+    string hash = sha256(newPass.substr(0, 256) + salt);
+
+    db->updatePassword(storedUsername, hash, salt);
+
+    sendSocket("PASS_UPDATED" + CRLF);
+}
+
+void ClientSocket::handleCheckPass(string message)
+{
+    Database *db = Database::getInstance();
+    string salt = db->getSalt(storedUsername);
+    string password = message.substr(8, message.length() - 8);
+    string hash = sha256(password.substr(0, 256) + salt);
+
+    if (db->checkCredentials(storedUsername, hash))
+        sendSocket("PASS_OK" + CRLF);
+    else
+        sendSocket("PASS_BAD" + CRLF);
 }
 
 void ClientSocket::handleLogin(string message)
 {
-    //Strip \n
-    int lineFeedPos;
-    if ((lineFeedPos = message.find_last_of("\n")) != -1)
-    {
-        message.erase(lineFeedPos, 1);
-    }
-
-    //Split username and password
     string username, password;
 
     int passwordPos = message.find_first_of(" ");
@@ -80,31 +121,23 @@ void ClientSocket::handleLogin(string message)
     if (!credentialsAccepted)
     {
         this->sendSocket("CREDENTIALS_DENIED" + CRLF);
+        return;
     }
-    else
-    {
-        this->sendSocket("CREDENTIALS_OKAY" + CRLF);
-        string color = db->getColor(username);
 
-        storedUsername = username;
-        storedColor = color;
+    this->sendSocket("CREDENTIALS_OKAY" + CRLF);
+    string color = db->getColor(username);
 
-        Broadcaster *bc = Broadcaster::getInstance();
-        bc->addToSocketList(clientSocket, username, color);
-    }
+    storedUsername = username;
+    storedColor = color;
+
+    Broadcaster *bc = Broadcaster::getInstance();
+    bc->addToSocketList(clientSocket, username, color);
 
     return;
 }
 
 void ClientSocket::handleRegistration(string message)
 {
-    //Strip \n
-    int lineFeedPos;
-    if ((lineFeedPos = message.find_last_of("\n")) != -1)
-    {
-        message.erase(lineFeedPos, 1);
-    }
-
     string username, password, color, salt, hash;
     int passwordPos = message.find_first_of(" ");
     color = message.substr(3, 7);
@@ -141,16 +174,18 @@ void ClientSocket::handleRegistration(string message)
 
 void ClientSocket::handleBroadcastMessage(string message)
 {
-    //Strip \n
-    int lineFeedPos;
-    if ((lineFeedPos = message.find_last_of("\n")) != -1)
-    {
-        message.erase(lineFeedPos, 1);
-    }
-
     // Build formatted message
     string formattedMessage = "<div><b><font color='" + storedColor + "'>" + storedUsername + "</font>:</b> " + message.substr(3, message.length() - 3) + "</div>";
 
     Broadcaster *bc = Broadcaster::getInstance();
     bc->broadcastMessage(formattedMessage);
+}
+
+void ClientSocket::stripNewLine(string &message)
+{
+    int lineFeedPos;
+    if ((lineFeedPos = message.find_last_of("\n")) != -1)
+    {
+        message.erase(lineFeedPos, 1);
+    }
 }

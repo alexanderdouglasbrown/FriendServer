@@ -5,11 +5,13 @@ using namespace std;
 
 class SocketIO
 {
-  private:
-    int socket;
+private:
+  int socket;
 
-  public:
-    SocketIO(int);
-    bool sendSocket(string);
-    string readSocket();
+public:
+  SocketIO();
+
+  bool sendSocket(int, string);
+  string readSocket(int);
+  void closeSocket(int);
 };
