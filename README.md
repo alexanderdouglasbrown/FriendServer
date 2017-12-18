@@ -1,5 +1,15 @@
 # Frend Chat Server (Linux)
+## A server for Frend Chat
 
-## Required packages
+### Required packages
 
-g++ make sqlite libsqlite3-dev
+g++ make libsqlite3-dev
+
+### Installation
+~~~
+sudo apt-get install g++ make libsqlite3-dev
+git clone https://github.com/alexanderdouglasbrown/FrendServer.git
+cd FrendServer
+make
+./FrendServer.out
+~~~
