@@ -37,7 +37,8 @@ void Broadcaster::addToSocketList(int clientSocket, string username, string colo
         if (toUpper(socketList[i].username) == toUpper(username))
         {
             socketObject.closeSocket(socketList[i].socket);
-            socketList.erase(socketList.begin() + i);
+            removeFromSocketList(socketList[i].socket, false);
+            i--;
         }
         else
         {
@@ -54,8 +55,15 @@ void Broadcaster::userJoinBroadcastWorker(int clientSocket, string username, str
 
 void Broadcaster::removeFromSocketList(int clientSocket)
 {
-    lock_guard<mutex> lock(mu);
-    string leavingUsername;
+    removeFromSocketList(clientSocket, true);
+}
+
+void Broadcaster::removeFromSocketList(int clientSocket, bool needsMutex)
+{
+    if (needsMutex)
+        lock_guard<mutex> lock(mu);
+
+    string leavingUsername = "";
 
     for (int i = 0; i < socketList.size(); i++)
     {
@@ -66,6 +74,9 @@ void Broadcaster::removeFromSocketList(int clientSocket)
             break;
         }
     }
+
+    if (leavingUsername == "")
+        return;
 
     for (int i = 0; i < socketList.size(); i++)
     {

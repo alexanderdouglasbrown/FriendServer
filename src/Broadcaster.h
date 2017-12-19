@@ -30,6 +30,7 @@ private:
   void userJoinBroadcastWorker(int, string, string);
   void userLeaveBroadcastWorker(int, string);
   void userListBroadcastWorker(int, vector<clientInfo>);
+  void removeFromSocketList(int, bool);
 
   string toUpper(string);
 
