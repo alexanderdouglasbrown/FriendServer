@@ -34,9 +34,10 @@ void Broadcaster::addToSocketList(int clientSocket, string username, string colo
 
     for (int i = 0; i < socketList.size() - 1; i++)
     {
-        if (socketList[i].username == username)
+        if (toUpper(socketList[i].username) == toUpper(username))
         {
             socketObject.closeSocket(socketList[i].socket);
+            socketList.erase(socketList.begin() + i);
         }
         else
         {
@@ -118,4 +119,14 @@ void Broadcaster::printBroadcastList()
         cout << socketList[i].socket << "\t\t" << socketList[i].color << "\t\t" << socketList[i].username << endl;
     }
     cout << "~~~~~~~~~~~~~~~~\n\n";
+}
+
+string Broadcaster::toUpper(string fixme)
+{
+    for (int i = 0; i < fixme.size(); i++)
+    {
+        if (fixme[i] >= 97 && fixme[i] <= 122)
+            fixme[i] -= 32;
+    }
+    return fixme;
 }

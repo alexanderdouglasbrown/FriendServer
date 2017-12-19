@@ -31,6 +31,8 @@ private:
   void userLeaveBroadcastWorker(int, string);
   void userListBroadcastWorker(int, vector<clientInfo>);
 
+  string toUpper(string);
+
 public:
   static Broadcaster *getInstance();
 
