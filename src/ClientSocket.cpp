@@ -29,9 +29,9 @@ bool ClientSocket::sendSocket(string message)
 void ClientSocket::parseReply(string message)
 {
     stripNewLine(message);
-    if (message.substr(0, 10) == "FREND_CHAT")
+    if (message == "FREND_CHAT_VER_1_01")
 
-        this->sendSocket("FREND_SERVER_VER_1_00" + CRLF);
+        this->sendSocket("FREND_SERVER_VER_1_01" + CRLF);
 
     else if (message.substr(0, 5) == "LOGIN")
         handleLogin(message);
@@ -72,7 +72,7 @@ void ClientSocket::handleUpdateColor(string message)
     bc->removeFromSocketList(clientSocket);
     bc->addToSocketList(clientSocket, storedUsername, storedColor);
 
-    sendSocket("COLOR_UPDATED" + CRLF);
+    sendSocket("COLOR_UPDATED" + storedColor + CRLF);
 }
 
 void ClientSocket::handleNewPass(string message)
@@ -174,11 +174,36 @@ void ClientSocket::handleRegistration(string message)
 
 void ClientSocket::handleBroadcastMessage(string message)
 {
-    // Build formatted message
-    string formattedMessage = "<div><b><font color='" + storedColor + "'>" + storedUsername + "</font>:</b> " + message.substr(3, message.length() - 3) + "</div>";
+    if (storedUsername == "")
+        return;
+
+    string cleanMessage = message.substr(3, message.length() - 3);
+
+    fixForHTML('&', "&amp;", cleanMessage);
+    fixForHTML('<', "&lt;", cleanMessage);
+    fixForHTML('>', "&gt;", cleanMessage);
+    fixForHTML('\"', "&quot;", cleanMessage);
+    fixForHTML('\'', "&#39;", cleanMessage);
+    fixForHTML('\\', "&#92;", cleanMessage);
+
+    string formattedMessage = storedColor + storedUsername + " " + cleanMessage;
 
     Broadcaster *bc = Broadcaster::getInstance();
     bc->broadcastMessage(formattedMessage);
+}
+
+void ClientSocket::fixForHTML(char character, string replacement, string &toFix)
+{
+    //Would cause a problem if the replacement has the char in it after the first char
+    //But for what I need, this will do
+    for (int i = 0; i < toFix.length(); i++)
+    {
+        if (toFix[i] == character)
+        {
+            toFix.erase(i, 1);
+            toFix.insert(i, replacement);
+        }
+    }
 }
 
 void ClientSocket::stripNewLine(string &message)

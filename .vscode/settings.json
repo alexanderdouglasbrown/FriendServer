@@ -10,6 +10,7 @@
         "xutility": "cpp",
         "thread": "cpp",
         "xlocale": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "iosfwd": "cpp"
     }
 }

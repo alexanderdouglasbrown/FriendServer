@@ -21,6 +21,7 @@ private:
   void handleUpdateColor(string);
 
   void stripNewLine(string &);
+  void fixForHTML(char, string, string &);
 
 public:
   ClientSocket(int);
