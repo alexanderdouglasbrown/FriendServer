@@ -33,13 +33,13 @@ int Socket::createSocket(int port)
 
     if (setsockopt(socketHandle, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on)) < 0)
     {
-        cerr << "Failed to set socket options." << endl;
+        cerr << "Failed to set socket option: reuse address." << endl;
         return socketHandle;
     }
 
     if (setsockopt(socketHandle, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0)
     {
-        cerr << "Failed to set socket option (Send timeout)" << endl;
+        cerr << "Failed to set socket option: set timeout." << endl;
         return socketHandle;
     }
 
@@ -65,7 +65,7 @@ int Socket::acceptConnection(int socketHandle)
 
     if ((clientSocket = accept(socketHandle, (struct sockaddr *)&socketAddress, (socklen_t *)&socketAddressLength)) < 0)
     {
-        cerr << "An error occured while accepting a connection." << endl;
+        cerr << "An error occured while accepting a connection. The port may be reserved." << endl;
     }
     return clientSocket;
 }

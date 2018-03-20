@@ -6,10 +6,11 @@
 #include "Socket.h"
 #include "SocketIO.h"
 #include "ClientSocket.h"
-#include "Settings.h"
 #include "Database.h"
 #include "Broadcaster.h"
 #include "Color.h"
+
+#define DEFAULT_PORT_NUMBER 41260
 
 using namespace std;
 
@@ -17,18 +18,26 @@ void quitSignal(int);
 void clientSocketWorker(int);
 void broadcastWorker();
 
-int main()
+int main(int argc, char *argv[])
 {
+	int portNumber = DEFAULT_PORT_NUMBER;
+
+	if (argc >= 2)
+		portNumber = atoi(argv[1]);
+
+	if (portNumber == 0)
+		portNumber = DEFAULT_PORT_NUMBER;
+
+
 	signal(SIGINT, quitSignal);
 	cout << ANSI_BACKGROUND_BLUE << ANSI_WHITE << "Frend Chat Server" << ANSI_RESET << endl;
 
-	Settings settings;
 	Database *db = Database::getInstance();
 	Socket socketObject;
 
-	int serverHandle = socketObject.createSocket(settings.getPortNumber());
+	int serverHandle = socketObject.createSocket(portNumber);
 
-	cout << "Listening on port " << settings.getPortNumber() << "..." << endl;
+	cout << "Listening on port " << portNumber << "..." << endl;
 
 	while (true)
 	{
@@ -38,6 +47,8 @@ int main()
 		{
 			thread connection(clientSocketWorker, clientSocket);
 			connection.detach();
+		} else {
+			break;
 		}
 	}
 

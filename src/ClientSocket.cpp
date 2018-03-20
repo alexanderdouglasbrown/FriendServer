@@ -4,7 +4,6 @@
 #include "../ext/sha256.h"
 
 #include <chrono>
-// #include <iostream>
 
 using namespace std;
 
@@ -29,9 +28,8 @@ bool ClientSocket::sendSocket(string message)
 void ClientSocket::parseReply(string message)
 {
     stripNewLine(message);
-    if (message == "FREND_CHAT_VER_1_01")
-
-        this->sendSocket("FREND_SERVER_VER_1_01" + CRLF);
+    if (message.substr(0, 10) == "FREND_CHAT")
+        handleWelcome(message);
 
     else if (message.substr(0, 5) == "LOGIN")
         handleLogin(message);
@@ -56,9 +54,22 @@ void ClientSocket::parseReply(string message)
 
     else if (message.substr(0, 12) == "UPDATE_COLOR")
         handleUpdateColor(message);
+}
 
-    // else
-    //     cerr << "Unrecognized command: " << message << endl;
+void ClientSocket::handleWelcome(string message)
+{
+    int version, subversion; //Client version
+    string versionString = message.substr(11, message.length());
+
+    version = stoi(versionString.substr(versionString.find_first_of("_") + 1, versionString.find_last_of("_") - versionString.find_first_of("_") - 1));
+    subversion = stoi(versionString.substr(versionString.find_last_of("_") + 1, versionString.length() - versionString.find_last_of("_") - 1));
+
+    if (version == 1 && subversion == 1) //Still compatible client
+        this->sendSocket("FREND_SERVER_VER_1_01" + CRLF);
+    else if (version == 1 && subversion == 2)
+        this->sendSocket("FREND_SERVER_WELCOME" + CRLF);
+    else
+        this->sendSocket("FREND_SERVER_UNSUPPORTED_CLIENT" + CRLF);
 }
 
 void ClientSocket::handleUpdateColor(string message)

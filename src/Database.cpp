@@ -36,28 +36,6 @@ Database *Database::getInstance()
     return instance;
 }
 
-//For debug since I'm doing everything without an IDE
-void Database::printSQLResult(vector<vector<string>> result)
-{
-    if (result.size() == 0)
-    {
-        cout << "No result" << endl;
-        return;
-    }
-    for (int i = 0; i < result.size(); i++)
-    {
-        for (int k = 0; k < result[i].size(); k++)
-        {
-            cout << result[i][k];
-            if (k < result[i].size() - 1)
-            {
-                cout << " | ";
-            }
-        }
-        cout << endl;
-    }
-}
-
 vector<vector<string>> Database::sqlCommand(string sql)
 {
     lock_guard<mutex> lock(mu);

@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <thread>
-#include <iostream>
 
 using namespace std;
 
@@ -120,16 +119,6 @@ void Broadcaster::userListBroadcastWorker(int clientSocket, vector<clientInfo> u
 {
     for (int i = 0; i < usersOnline.size(); i++)
         socketObject.sendSocket(clientSocket, "JOIN" + usersOnline[i].color + usersOnline[i].username + CRLF);
-}
-
-void Broadcaster::printBroadcastList()
-{
-    cout << "Socket\t\tColor\t\tUsername" << endl;
-    for (int i = 0; i < socketList.size(); i++)
-    {
-        cout << socketList[i].socket << "\t\t" << socketList[i].color << "\t\t" << socketList[i].username << endl;
-    }
-    cout << "~~~~~~~~~~~~~~~~\n\n";
 }
 
 string Broadcaster::toUpper(string fixme)

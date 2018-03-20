@@ -19,7 +19,6 @@ private:
 
   vector<vector<string>> sqlCommand(string);
   string toUpper(string);
-  void printSQLResult(vector<vector<string>>); //Debug function
 
 public:
   static Database *getInstance();

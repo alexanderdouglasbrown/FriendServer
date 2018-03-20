@@ -11,5 +11,5 @@ sudo apt-get install g++ make libsqlite3-dev
 git clone https://github.com/alexanderdouglasbrown/FrendServer.git
 cd FrendServer
 make
-./FrendServer.out
+./FrendServer.out [optional: port number]
 ~~~

@@ -13,6 +13,7 @@ private:
   string storedColor = "";
   string CRLF = "\r\n";
 
+  void handleWelcome(string);
   void handleLogin(string);
   void handleRegistration(string);
   void handleBroadcastMessage(string);

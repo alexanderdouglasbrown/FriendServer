@@ -25,7 +25,6 @@ private:
 
   static Broadcaster *instance;
   Broadcaster();
-  void printBroadcastList(); //Debug function.
   void messageBroadcastWorker(int, string);
   void userJoinBroadcastWorker(int, string, string);
   void userLeaveBroadcastWorker(int, string);
