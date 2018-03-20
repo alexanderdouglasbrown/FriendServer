@@ -61,8 +61,16 @@ void ClientSocket::handleWelcome(string message)
     int version, subversion; //Client version
     string versionString = message.substr(11, message.length());
 
-    version = stoi(versionString.substr(versionString.find_first_of("_") + 1, versionString.find_last_of("_") - versionString.find_first_of("_") - 1));
-    subversion = stoi(versionString.substr(versionString.find_last_of("_") + 1, versionString.length() - versionString.find_last_of("_") - 1));
+    try
+    {
+        version = stoi(versionString.substr(versionString.find_first_of("_") + 1, versionString.find_last_of("_") - versionString.find_first_of("_") - 1));
+        subversion = stoi(versionString.substr(versionString.find_last_of("_") + 1, versionString.length() - versionString.find_last_of("_") - 1));
+    }
+    catch (exception)
+    {
+        version = 0;
+        subversion = 0;
+    }
 
     if (version == 1 && subversion == 1) //Still compatible client
         this->sendSocket("FREND_SERVER_VER_1_01" + CRLF);
