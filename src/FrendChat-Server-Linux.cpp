@@ -58,23 +58,29 @@ int main(int argc, char *argv[])
 void quitSignal(int signal)
 {
 	Database *db = Database::getInstance();
+	Broadcaster *broadcaster = Broadcaster::getInstance();
 	db->closeDB();
+
+	delete db;
+	delete broadcaster;
+	
 	exit(EXIT_SUCCESS);
 }
 
 void clientSocketWorker(int clientSocket)
 {
-	ClientSocket socketObject(clientSocket);
+	ClientSocket *socketObject = new ClientSocket(clientSocket);
 
 	while (true)
 	{
-		string rcvMessage = socketObject.readSocket();
+		string rcvMessage = socketObject->readSocket();
 		if (rcvMessage == "DROP")
 			break;
 		else
-			socketObject.parseReply(rcvMessage);
+			socketObject->parseReply(rcvMessage);
 	}
 
 	Broadcaster *bc = Broadcaster::getInstance();
 	bc->removeFromSocketList(clientSocket);
+	delete socketObject;
 }
