@@ -2,6 +2,7 @@
 #include <thread>
 #include <string>
 #include <signal.h>
+#include <memory>
 
 #include "Socket.h"
 #include "SocketIO.h"
@@ -69,7 +70,7 @@ void quitSignal(int signal)
 
 void clientSocketWorker(int clientSocket)
 {
-	ClientSocket *socketObject = new ClientSocket(clientSocket);
+	unique_ptr<ClientSocket> socketObject(new ClientSocket(clientSocket));
 
 	while (true)
 	{
@@ -82,5 +83,4 @@ void clientSocketWorker(int clientSocket)
 
 	Broadcaster *bc = Broadcaster::getInstance();
 	bc->removeFromSocketList(clientSocket);
-	delete socketObject;
 }
