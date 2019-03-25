@@ -102,7 +102,7 @@ void ClientSocket::handleNewPass(string message)
     long int time = static_cast<long int>(chrono::duration_cast<chrono::nanoseconds>(chrono::high_resolution_clock::now().time_since_epoch()).count());
     string salt = to_string(time);
 
-    string hash = sha256(newPass.substr(0, 256) + salt);
+    string hash = getHash(newPass, salt);
 
     db->updatePassword(storedUsername, hash, salt);
 
@@ -114,7 +114,7 @@ void ClientSocket::handleCheckPass(string message)
     Database *db = Database::getInstance();
     string salt = db->getSalt(storedUsername);
     string password = message.substr(8, message.length() - 8);
-    string hash = sha256(password.substr(0, 256) + salt);
+    string hash = getHash(password, salt);
 
     if (db->checkCredentials(storedUsername, hash))
         sendSocket("PASS_OK" + CRLF);
@@ -134,7 +134,7 @@ void ClientSocket::handleLogin(string message)
 
     string salt = db->getSalt(username);
 
-    string hash = sha256(password.substr(0, 256) + salt);
+    string hash = getHash(password, salt);
     bool credentialsAccepted = db->checkCredentials(username, hash);
 
     if (!credentialsAccepted)
@@ -176,7 +176,7 @@ void ClientSocket::handleRegistration(string message)
     long int time = static_cast<long int>(chrono::duration_cast<chrono::nanoseconds>(chrono::high_resolution_clock::now().time_since_epoch()).count());
     salt = to_string(time);
 
-    hash = sha256(password.substr(0, 256) + salt);
+    hash = getHash(password, salt);
 
     db->registerUser(username, hash, salt, color);
 
@@ -209,6 +209,11 @@ void ClientSocket::handleBroadcastMessage(string message)
 
     Broadcaster *bc = Broadcaster::getInstance();
     bc->broadcastMessage(formattedMessage);
+}
+
+string ClientSocket::getHash(string password, string salt)
+{
+    return sha256(password.substr(0, 256) + salt);
 }
 
 void ClientSocket::fixForHTML(char character, string replacement, string &toFix)

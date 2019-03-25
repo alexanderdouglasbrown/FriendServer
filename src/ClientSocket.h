@@ -21,6 +21,7 @@ private:
   void handleNewPass(string);
   void handleUpdateColor(string);
 
+  string getHash(string, string);
   void stripNewLine(string &);
   void fixForHTML(char, string, string &);
 
