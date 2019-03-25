@@ -1,3 +1,6 @@
+# IDE gunk
+.vscode
+
 # Database
 *.db
 
