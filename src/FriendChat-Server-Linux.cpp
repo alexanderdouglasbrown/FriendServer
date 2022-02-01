@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
 
 	signal(SIGINT, quitSignal);
-	cout << ANSI_BACKGROUND_BLUE << ANSI_WHITE << "Frend Chat Server" << ANSI_RESET << endl;
+	cout << ANSI_BACKGROUND_BLUE << ANSI_WHITE << "Friend Chat Server" << ANSI_RESET << endl;
 
 	Database *db = Database::getInstance();
 	Socket socketObject;

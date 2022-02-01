@@ -12,7 +12,7 @@ private:
   static Database *instance;
   mutex mu;
 
-  const char *DBNAME = "frendchat.db";
+  const char *DBNAME = "friendchat.db";
   sqlite3 *db;
 
   Database();
