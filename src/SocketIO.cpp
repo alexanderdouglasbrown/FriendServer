@@ -41,14 +41,16 @@ string SocketIO::readSocket(int clientSocket)
 
 bool SocketIO::sendSocket(int clientSocket, string message)
 {
-    int bufferLength = message.length();
+    auto crlfMessage = message + CRLF;
+
+    int bufferLength = crlfMessage.length();
     int status;
     int offset = 0;
 
     while (offset < bufferLength)
     {
         char buffer[bufferLength] = {'\0'};
-        strncpy(buffer, message.c_str() + offset, sizeof(buffer));
+        strncpy(buffer, crlfMessage.c_str() + offset, sizeof(buffer));
 
         status = send(clientSocket, buffer + offset, bufferLength, 0);
         if (status == -1)

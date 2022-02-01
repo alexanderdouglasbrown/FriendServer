@@ -11,7 +11,6 @@ private:
   SocketIO socketObject;
   string storedUsername = "";
   string storedColor = "";
-  string CRLF = "\r\n";
 
   void handleWelcome(string);
   void handleLogin(string);

@@ -7,6 +7,7 @@ class SocketIO
 {
 private:
   int socket;
+  string CRLF = "\r\n";
 
 public:
   SocketIO();

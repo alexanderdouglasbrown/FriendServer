@@ -19,10 +19,7 @@ string ClientSocket::readSocket()
 
 bool ClientSocket::sendSocket(string message)
 {
-    // Messages end with \n (\r is stripped)
-    // Java Client is expecting CRLF in its repsonses
-    auto crlfMessage = message + CRLF;
-    return socketObject.sendSocket(clientSocket, crlfMessage);
+    return socketObject.sendSocket(clientSocket, message);
 }
 
 void ClientSocket::parseReply(string message)
