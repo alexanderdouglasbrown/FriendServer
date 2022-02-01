@@ -19,16 +19,16 @@ string ClientSocket::readSocket()
 
 bool ClientSocket::sendSocket(string message)
 {
-    return socketObject.sendSocket(clientSocket, message);
+    // Messages end with \n (\r is stripped)
+    // Java Client is expecting CRLF in its repsonses
+    auto crlfMessage = message + CRLF;
+    return socketObject.sendSocket(clientSocket, crlfMessage);
 }
-
-// Messages end with \n (\r is stripped)
-// Java Client is expecting CRLF in its repsonses
 
 void ClientSocket::parseReply(string message)
 {
     stripNewLine(message);
-    if (message.substr(0, 10) == "FREND_CHAT")
+    if (message.substr(0, 11) == "FRIEND_CHAT")
         handleWelcome(message);
 
     else if (message.substr(0, 5) == "LOGIN")
@@ -58,26 +58,7 @@ void ClientSocket::parseReply(string message)
 
 void ClientSocket::handleWelcome(string message)
 {
-    int version, subversion; //Client version
-    string versionString = message.substr(11, message.length());
-
-    try
-    {
-        version = stoi(versionString.substr(versionString.find_first_of("_") + 1, versionString.find_last_of("_") - versionString.find_first_of("_") - 1));
-        subversion = stoi(versionString.substr(versionString.find_last_of("_") + 1, versionString.length() - versionString.find_last_of("_") - 1));
-    }
-    catch (exception)
-    {
-        version = 0;
-        subversion = 0;
-    }
-
-    if (version == 1 && subversion == 1) //Still compatible client
-        this->sendSocket("FREND_SERVER_VER_1_01" + CRLF);
-    else if (version == 1 && subversion == 2)
-        this->sendSocket("FREND_SERVER_WELCOME" + CRLF);
-    else
-        this->sendSocket("FREND_SERVER_UNSUPPORTED_CLIENT" + CRLF);
+    this->sendSocket("FRIEND_SERVER_WELCOME");
 }
 
 void ClientSocket::handleUpdateColor(string message)
@@ -91,7 +72,7 @@ void ClientSocket::handleUpdateColor(string message)
     bc->removeFromSocketList(clientSocket);
     bc->addToSocketList(clientSocket, storedUsername, storedColor);
 
-    sendSocket("COLOR_UPDATED" + storedColor + CRLF);
+    sendSocket("COLOR_UPDATED" + storedColor);
 }
 
 void ClientSocket::handleNewPass(string message)
@@ -106,7 +87,7 @@ void ClientSocket::handleNewPass(string message)
 
     db->updatePassword(storedUsername, hash, salt);
 
-    sendSocket("PASS_UPDATED" + CRLF);
+    sendSocket("PASS_UPDATED");
 }
 
 void ClientSocket::handleCheckPass(string message)
@@ -117,9 +98,9 @@ void ClientSocket::handleCheckPass(string message)
     string hash = getHash(password, salt);
 
     if (db->checkCredentials(storedUsername, hash))
-        sendSocket("PASS_OK" + CRLF);
+        sendSocket("PASS_OK");
     else
-        sendSocket("PASS_BAD" + CRLF);
+        sendSocket("PASS_BAD");
 }
 
 void ClientSocket::handleLogin(string message)
@@ -139,11 +120,11 @@ void ClientSocket::handleLogin(string message)
 
     if (!credentialsAccepted)
     {
-        this->sendSocket("CREDENTIALS_DENIED" + CRLF);
+        this->sendSocket("CREDENTIALS_DENIED");
         return;
     }
 
-    this->sendSocket("CREDENTIALS_OKAY" + CRLF);
+    this->sendSocket("CREDENTIALS_OKAY");
     string color = db->getColor(username);
 
     storedUsername = username;
@@ -169,7 +150,7 @@ void ClientSocket::handleRegistration(string message)
 
     if (usernameExists)
     {
-        this->sendSocket("USERNAME_IN_USE" + CRLF);
+        this->sendSocket("USERNAME_IN_USE");
         return;
     }
 
@@ -186,7 +167,7 @@ void ClientSocket::handleRegistration(string message)
     Broadcaster *bc = Broadcaster::getInstance();
     bc->addToSocketList(clientSocket, username, color);
 
-    this->sendSocket("USER_REGISTERED" + CRLF);
+    this->sendSocket("USER_REGISTERED");
 
     return;
 }
@@ -218,16 +199,17 @@ string ClientSocket::getHash(string password, string salt)
 
 void ClientSocket::fixForHTML(char character, string replacement, string &toFix)
 {
-    //Would cause a problem if the replacement has the char in it after the first char
-    //But for what I need, this will do
+    string result = "";
+
     for (int i = 0; i < toFix.length(); i++)
     {
         if (toFix[i] == character)
-        {
-            toFix.erase(i, 1);
-            toFix.insert(i, replacement);
-        }
+            result += replacement;
+        else
+            result += toFix[i];
     }
+
+    toFix.assign(result);
 }
 
 void ClientSocket::stripNewLine(string &message)

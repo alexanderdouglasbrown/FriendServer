@@ -19,7 +19,6 @@ private:
 
   SocketIO socketObject;
 
-  string CRLF = "\r\n";
   mutex mu;
   vector<clientInfo> socketList;
 
