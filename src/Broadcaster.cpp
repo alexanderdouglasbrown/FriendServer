@@ -49,7 +49,7 @@ void Broadcaster::addToSocketList(int clientSocket, string username, string colo
 
 void Broadcaster::userJoinBroadcastWorker(int clientSocket, string username, string color)
 {
-    socketObject.sendSocket(clientSocket, "JOIN" + color + username + CRLF);
+    socketObject.sendSocket(clientSocket, "JOIN" + color + username);
 }
 
 void Broadcaster::removeFromSocketList(int clientSocket)
@@ -86,7 +86,7 @@ void Broadcaster::removeFromSocketList(int clientSocket, bool needsMutex)
 
 void Broadcaster::userLeaveBroadcastWorker(int clientSocket, string username)
 {
-    socketObject.sendSocket(clientSocket, "LEAVE" + username + CRLF);
+    socketObject.sendSocket(clientSocket, "LEAVE" + username);
 }
 
 void Broadcaster::broadcastMessage(string message)
@@ -102,7 +102,7 @@ void Broadcaster::broadcastMessage(string message)
 
 void Broadcaster::messageBroadcastWorker(int clientSocket, string message)
 {
-    socketObject.sendSocket(clientSocket, "BRD" + message + CRLF);
+    socketObject.sendSocket(clientSocket, "BRD" + message);
 }
 
 void Broadcaster::requestUserList(int clientSocket)
@@ -118,7 +118,7 @@ void Broadcaster::requestUserList(int clientSocket)
 void Broadcaster::userListBroadcastWorker(int clientSocket, vector<clientInfo> usersOnline)
 {
     for (int i = 0; i < usersOnline.size(); i++)
-        socketObject.sendSocket(clientSocket, "JOIN" + usersOnline[i].color + usersOnline[i].username + CRLF);
+        socketObject.sendSocket(clientSocket, "JOIN" + usersOnline[i].color + usersOnline[i].username);
 }
 
 string Broadcaster::toUpper(string fixme)

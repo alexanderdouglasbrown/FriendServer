@@ -11,5 +11,5 @@ sudo apt-get install g++ make libsqlite3-dev
 git clone https://github.com/alexanderdouglasbrown/FriendServer.git
 cd FriendServer
 make
-./FrendServer.out [optional: port number]
+./FriendServer.out [optional: port number]
 ~~~
